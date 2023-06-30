@@ -1,4 +1,4 @@
-# user_authentication
+# Flutter User Authentication App
 
 This Flutter project is a user authentication app that provides a simple and secure way for users to verify their identity using a One-Time Password (OTP) sent to their mobile number. The app is designed to streamline the user authentication process and ensure the security of user accounts.
 
