@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
+import 'package:user_authentication/phone.dart';
 
 class MyOtp extends StatefulWidget {
   const MyOtp({Key? key}) : super(key: key);
@@ -9,6 +11,8 @@ class MyOtp extends StatefulWidget {
 }
 
 class _MyOtpState extends State<MyOtp> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     final defaultPinTheme = PinTheme(
@@ -34,7 +38,7 @@ class _MyOtpState extends State<MyOtp> {
         color: Color.fromRGBO(234, 239, 243, 1),
       ),
     );
-
+    var code = "";
     return Scaffold(
       body: Container(
         margin: EdgeInsets.only(left: 25, right: 25),
@@ -62,22 +66,39 @@ class _MyOtpState extends State<MyOtp> {
                 height: 25,
               ),
               Pinput(
+                length: 6,
                 defaultPinTheme: defaultPinTheme,
                 focusedPinTheme: focusedPinTheme,
                 submittedPinTheme: submittedPinTheme,
                 validator: (s) {
-                  return s == '2222' ? null : 'Pin is incorrect';
+                  return s == code ? null : 'Pin is incorrect';
                 },
                 pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
                 showCursor: true,
                 onCompleted: (pin) => print(pin),
+                onChanged: (value) {
+                  code = value;
+                },
               ),
               SizedBox(height: 20),
               SizedBox(
                 height: 45,
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    try {
+                      PhoneAuthCredential credential =
+                          PhoneAuthProvider.credential(
+                              verificationId: MyPhone.verify, smsCode: code);
+
+                      // Sign the user in (or link) with the credential
+                      await auth.signInWithCredential(credential);
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, "home", (route) => false);
+                    } catch (e) {
+                      print("Wrong OTP");
+                    }
+                  },
                   child: Text(
                     'Verify Phone Number',
                   ),
